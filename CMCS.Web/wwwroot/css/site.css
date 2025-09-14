@@ -28,3 +28,7 @@ body {
 .table th, .table td {
     vertical-align: middle;
 }
+
+/* POE Part 1 polish */
+body { background-color:#f8f9fb; }
+.table th, .table td { vertical-align: middle; }
