@@ -1,0 +1,35 @@
+﻿@model IEnumerable<CMCS.Web.Models.ClaimListVm>
+@{
+    ViewData["Title"] = "My Claims";
+}
+<h2 class="mb-3">My Claims</h2>
+
+<table class="table table-hover align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>Month</th>
+            <th class="text-end">Hours</th>
+            <th class="text-end">Amount</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model)
+        {
+            <tr>
+                <td>@c.MonthLabel</td>
+                <td class="text-end">@c.TotalHours</td>
+                <td class="text-end">@c.TotalAmount.ToString("C")</td>
+                <td>
+                    <span class="badge bg-@(c.Status.Contains("Approved") ? "success" : c.Status.Contains("Draft") ? "secondary" : "warning")">
+                        @c.Status
+                    </span>
+                </td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@c.ClaimId">Open</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
