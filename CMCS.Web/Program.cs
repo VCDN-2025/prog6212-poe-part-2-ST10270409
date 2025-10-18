@@ -1,36 +1,24 @@
-namespace CMCS.Web
-{
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+using CMCS.Web.Services;
 
-            // Add services to the container.
-            builder.Services.AddControllersWithViews();
+var builder = WebApplication.CreateBuilder(args);
 
-            var app = builder.Build();
+builder.Services.AddControllersWithViews();
 
-            // Configure the HTTP request pipeline.
-            if (!app.Environment.IsDevelopment())
-            {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
+// Optional but useful for debugging in the console
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
+// DI registrations (we'll add these types in steps 2–4)
+builder.Services.AddSingleton<IClaimRepository, JsonClaimRepository>();
+builder.Services.AddSingleton<IFileCrypto, AesFileCrypto>();
 
-            app.UseRouting();
+var app = builder.Build();
 
-            app.UseAuthorization();
+app.UseStaticFiles();
+app.UseRouting();
 
-            app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
-            app.Run();
-        }
-    }
-}
+app.Run();

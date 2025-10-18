@@ -1,0 +1,43 @@
+﻿@model CMCS.Web.ViewModels.CreateClaimVm
+@{
+    ViewData["Title"] = "New Claim";
+}
+<h2>New Claim</h2>
+@Html.Partial("_Alerts")
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label class="form-label">Date</label>
+        <input asp-for="Date" class="form-control" />
+        <span asp-validation-for="Date" class="text-danger"></span>
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Hours Worked</label>
+            <input asp-for="HoursWorked" class="form-control" id="hours" />
+            <span asp-validation-for="HoursWorked" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Hourly Rate (R)</label>
+            <input asp-for="HourlyRate" class="form-control" id="rate" />
+            <span asp-validation-for="HourlyRate" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="mb-2">
+        <strong>Total: R <span id="total">0.00</span></strong>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Notes</label>
+        <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Notes" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit Claim</button>
+    <a asp-action="My" class="btn btn-link">My Claims</a>
+</form>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function calc(){const h=parseFloat(hours.value)||0; const r=parseFloat(rate.value)||0; total.innerText=(h*r).toFixed(2);}
+        const hours=document.getElementById('hours'), rate=document.getElementById('rate'), total=document.getElementById('total');
+        hours.addEventListener('input',calc); rate.addEventListener('input',calc); calc();
+    </script>
+}

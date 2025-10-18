@@ -1,50 +1,101 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using CMCS.Web.Models;
-using System;
-using System.Collections.Generic;
+﻿using CMCS.Web.Models;
+using CMCS.Web.Services;
+using CMCS.Web.ViewModels;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CMCS.Web.Controllers;
-public class ClaimsController : Controller
-{
-    // In-memory demo data for prototype (no DB)
-    private static readonly List<ClaimListVm> _claims = new()
-    {
-        new ClaimListVm { ClaimId = Guid.NewGuid(), MonthLabel = "August 2025",    TotalHours = 42, TotalAmount = 12600, Status = "Approved" },
-        new ClaimListVm { ClaimId = Guid.NewGuid(), MonthLabel = "September 2025", TotalHours = 18, TotalAmount =  5400, Status = "Draft" },
-        new ClaimListVm { ClaimId = Guid.NewGuid(), MonthLabel = "October 2025",   TotalHours =  0, TotalAmount =     0, Status = "Not Started" }
-    };
 
-    public IActionResult New()
+public sealed class ClaimsController : Controller
+{
+    private readonly IClaimRepository _repo;
+    private readonly IFileCrypto _crypto;
+    private readonly IWebHostEnvironment _env;
+    private readonly ILogger<ClaimsController> _log;
+
+    public ClaimsController(IClaimRepository repo, IFileCrypto crypto, IWebHostEnvironment env, ILogger<ClaimsController> log)
+    { _repo = repo; _crypto = crypto; _env = env; _log = log; }
+
+    [HttpGet]
+    public IActionResult Create() => View(new CreateClaimVm());
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(CreateClaimVm vm)
     {
-        var vm = new NewClaimVm
+        if (!ModelState.IsValid) return View(vm);
+        try
         {
-            Items = new()
+            var claim = new Claim
             {
-                new ClaimItemVm { WorkDate = DateTime.Today.AddDays(-3), Hours = 2.0m,  Activity = "Lecture: PROG6212", HourlyRate = 300 },
-                new ClaimItemVm { WorkDate = DateTime.Today.AddDays(-2), Hours = 1.5m,  Activity = "Consultation",      HourlyRate = 300 }
-            }
-        };
-        return View(vm);
+                Date = vm.Date,
+                HoursWorked = vm.HoursWorked,
+                HourlyRate = vm.HourlyRate,
+                Notes = vm.Notes
+            };
+            await _repo.AddAsync(claim);
+            TempData["ok"] = "Claim submitted successfully.";
+            return RedirectToAction(nameof(My));
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Create claim failed");
+            TempData["err"] = "Sorry, something went wrong while saving your claim.";
+            return View(vm);
+        }
     }
 
-    public IActionResult My() => View(_claims);
-
-    public IActionResult Details(Guid id)
+    [HttpGet]
+    public async Task<IActionResult> My()
     {
-        var claim = _claims.Find(c => c.ClaimId == id);
-        if (claim is null) return NotFound();
+        var all = await _repo.GetAllAsync();
+        return View(all);
+    }
 
-        var vm = new NewClaimVm
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Upload(Guid id, IFormFile file)
+    {
+        if (file is null || file.Length == 0) { TempData["err"] = "Please select a file."; return RedirectToAction(nameof(My)); }
+        if (!_crypto.IsAllowedExtension(file.FileName)) { TempData["err"] = "Only .pdf, .docx, .xlsx allowed."; return RedirectToAction(nameof(My)); }
+        if (file.Length > 2 * 1024 * 1024) { TempData["err"] = "File exceeds 2MB limit."; return RedirectToAction(nameof(My)); }
+
+        try
         {
-            LecturerName = "Lonwabo Wabo (demo)",
-            MonthLabel = claim.MonthLabel,
-            Status = claim.Status,
-            Items = new()
+            var claim = await _repo.GetAsync(id);
+            if (claim is null) { TempData["err"] = "Claim not found."; return RedirectToAction(nameof(My)); }
+
+            var targetDir = Path.Combine(_env.WebRootPath, "uploads");
+            await using var stream = file.OpenReadStream();
+            var stored = await _crypto.EncryptAndSaveAsync(stream, targetDir, file.FileName);
+
+            claim.Documents.Add(new ClaimDocument
             {
-                new ClaimItemVm { WorkDate = DateTime.Today.AddDays(-7), Hours = 3, Activity = "Lecture",  HourlyRate = 300 },
-                new ClaimItemVm { WorkDate = DateTime.Today.AddDays(-6), Hours = 2, Activity = "Marking",  HourlyRate = 250 }
-            }
-        };
-        return View(vm);
+                OriginalFileName = file.FileName,
+                StoredFileName = stored,
+                SizeBytes = file.Length
+            });
+            await _repo.UpdateAsync(claim);
+
+            TempData["ok"] = $"Uploaded {file.FileName}.";
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Upload failed");
+            TempData["err"] = "Upload failed. Ensure file type/size is valid.";
+        }
+        return RedirectToAction(nameof(My));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Download(Guid claimId, Guid docId)
+    {
+        var claim = await _repo.GetAsync(claimId);
+        var doc = claim?.Documents.FirstOrDefault(d => d.Id == docId);
+        if (doc is null) return NotFound();
+
+        var temp = Path.GetTempFileName();
+        await _crypto.DecryptToAsync(doc.StoredFileName, temp);
+        var bytes = await System.IO.File.ReadAllBytesAsync(temp);
+        System.IO.File.Delete(temp);
+
+        return File(bytes, "application/octet-stream", doc.OriginalFileName);
     }
 }

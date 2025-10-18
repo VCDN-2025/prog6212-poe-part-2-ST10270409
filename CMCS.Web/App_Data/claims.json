@@ -1,0 +1,20 @@
+[
+  {
+    "Id": "ce72d26d-6f4e-4482-be60-f3c0cfbd8bb7",
+    "Date": "2025-10-01T00:00:00",
+    "HoursWorked": 8,
+    "HourlyRate": 500.00,
+    "Notes": "Tire",
+    "Total": 4000.00,
+    "Status": 1,
+    "Documents": [
+      {
+        "Id": "0c404a5b-de06-42ec-b745-8c9d0e96bca5",
+        "OriginalFileName": "HealthHub_WBS_Squares.pdf",
+        "StoredFileName": "c8b6dbe427b64d1ebb5eb21eb756e215.bin",
+        "SizeBytes": 19984,
+        "UploadedAt": "2025-10-18T14:20:32.8162222Z"
+      }
+    ]
+  }
+]

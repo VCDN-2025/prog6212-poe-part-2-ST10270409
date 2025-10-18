@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-
 namespace CMCS.Web.Controllers;
 public class HomeController : Controller
 {
