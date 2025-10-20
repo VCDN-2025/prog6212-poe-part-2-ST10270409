@@ -18,7 +18,7 @@ public sealed class Claim
     [StringLength(250)]
     public string? Notes { get; set; }
 
-    public decimal Total => Math.Round((decimal)HoursWorked * HourlyRate, 2);
+    public decimal Total => Math.Round((decimal)HoursWorked * HourlyRate, 2, MidpointRounding.AwayFromZero);
 
     public ClaimStatus Status { get; set; } = ClaimStatus.Pending;
 

@@ -32,3 +32,22 @@ body {
 /* POE Part 1 polish */
 body { background-color:#f8f9fb; }
 .table th, .table td { vertical-align: middle; }
+.navbar .nav-link.active {
+    font-weight: 600;
+}
+
+.table td, .table th {
+    vertical-align: middle;
+}
+
+.badge {
+    font-size: .85rem;
+}
+
+.progress {
+    background-color: #eee;
+}
+
+    .progress .progress-bar {
+        font-size: .75rem;
+    }

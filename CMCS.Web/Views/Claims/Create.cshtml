@@ -3,7 +3,7 @@
     ViewData["Title"] = "New Claim";
 }
 <h2>New Claim</h2>
-@Html.Partial("_Alerts")
+<partial name="_Alerts" />
 <form asp-action="Create" method="post">
     <div class="mb-3">
         <label class="form-label">Date</label>
