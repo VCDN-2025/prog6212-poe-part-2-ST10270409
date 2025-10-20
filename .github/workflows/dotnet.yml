@@ -6,7 +6,6 @@ on:
 
 jobs:
   build-and-test:
-    # Windows matches your dev environment and is friendly to ASP.NET projects
     runs-on: windows-latest
 
     steps:
@@ -20,6 +19,7 @@ jobs:
             8.0.x
             9.0.x
           cache: true
+          cache-dependency-path: '**/*.csproj'   # ✅ uses project files for caching
 
       - name: Restore
         run: dotnet restore
