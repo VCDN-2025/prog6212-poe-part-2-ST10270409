@@ -47,8 +47,8 @@
         {
             var pct = Percent(c.Status);
             <tr>
-                <td>@c.Date:yyyy-MM-dd</td>
-                <td>@c.HoursWorked</td>
+                <td>@c.Date.ToString("dd MMM yyyy")</td>
+                <td>@c.HoursWorked.ToString("0.#")</td>
                 <td>@c.Total.ToString("F2")</td>
                 <td><span class="@Badge(c.Status)">@c.Status</span></td>
                 <td>
