@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿//Referencing list//
+//https://learn.microsoft.com/en-us/aspnet/core/mvc/overview?view=aspnetcore-8.0//
+
+using System.ComponentModel.DataAnnotations;
 
 namespace CMCS.Web.Models;
 

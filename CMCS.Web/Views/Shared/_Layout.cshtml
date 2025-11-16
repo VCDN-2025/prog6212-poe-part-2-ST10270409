@@ -36,6 +36,11 @@
                             <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString()=="Manager" ? "active" : null)"
                                asp-controller="Manager" asp-action="Index">Manager</a>
                         </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString()=="Reports" ? "active" : null)"
+                               asp-controller="Reports" asp-action="Index">HR / Reports</a>
+                        </li>
                     </ul>
                     <span class="navbar-text text-light small">PROG6212 • Part 2</span>
                 </div>

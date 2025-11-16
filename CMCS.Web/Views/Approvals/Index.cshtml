@@ -1,8 +1,15 @@
 ﻿@model IEnumerable<CMCS.Web.Models.ApprovalVm>
+
 @{
-    ViewData["Title"] = "Approvals";
+    ViewData["Title"] = "Approvals Dashboard";
 }
-<h2 class="mb-3">Approvals</h2>
+
+<h2 class="mb-3">Approvals Dashboard</h2>
+
+<p class="text-muted">
+    This staff-only view summarises where each claim is in the workflow
+    (Programme Coordinator → Academic Manager → Completed).
+</p>
 
 <table class="table table-hover align-middle">
     <thead class="table-light">
@@ -15,22 +22,44 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var a in Model)
+        @if (Model == null || !Model.Any())
         {
             <tr>
-                <td>@a.Lecturer</td>
-                <td>@a.MonthLabel</td>
-                <td>@a.Stage</td>
-                <td><span class="badge bg-warning text-dark">@a.Status</span></td>
-                <td class="text-end">
-                    <div class="btn-group">
-                        <button class="btn btn-sm btn-success" disabled>Approve</button>
-                        <button class="btn btn-sm btn-danger" disabled>Reject</button>
-                    </div>
+                <td colspan="5" class="text-center text-muted">
+                    No claims have been captured yet.
                 </td>
             </tr>
+        }
+        else
+        {
+            foreach (var a in Model)
+            {
+                var badgeClass = a.Status switch
+                {
+                    "Approved" => "badge bg-success",
+                    "Rejected" => "badge bg-danger",
+                    "UnderReview" => "badge bg-warning text-dark",
+                    _ => "badge bg-secondary"
+                };
+
+                <tr>
+                    <td>@a.Lecturer</td>
+                    <td>@a.MonthLabel</td>
+                    <td>@a.Stage</td>
+                    <td><span class="@badgeClass">@a.Status</span></td>
+                    <td class="text-end">
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-success" disabled>Approve</button>
+                            <button class="btn btn-sm btn-outline-danger" disabled>Reject</button>
+                        </div>
+                    </td>
+                </tr>
+            }
         }
     </tbody>
 </table>
 
-<p class="text-muted small">Actions disabled to respect Part 1 (non-functional).</p>
+<p class="text-muted small">
+    Approve/Reject actions are performed on the dedicated Coordinator/Manager screens,
+    so this dashboard remains read-only.
+</p>

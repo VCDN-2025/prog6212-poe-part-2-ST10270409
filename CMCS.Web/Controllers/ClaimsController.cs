@@ -1,4 +1,7 @@
-﻿using CMCS.Web.Models;
+﻿//Referencing list//
+//https://learn.microsoft.com/en-us/aspnet/core/mvc/overview?view=aspnetcore-8.0//
+
+using CMCS.Web.Models;
 using CMCS.Web.Services;
 using CMCS.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
